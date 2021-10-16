@@ -1,0 +1,10 @@
+#!/bin/python3
+import sys
+
+from decom import main
+
+if __name__ != "__main__":
+    sys.stderr.write('The executable dc module must not be imported')
+    sys.exit(1)
+
+main()
