@@ -1,0 +1,19 @@
+Ctrl+Alt+Left/Right     Navigate back/forward
+Ctrl+B                  Declaration
+Shift-Enter             Start new line
+Ctrl+Alt+L              Reformat code
+Ctrl+Alt+O              Optimize Imports
+Alt+Enter               To make it a field
+
+
+Ctrl+Shift+A    Find Action
+Alt+Enter	    Show Context Actions
+
+F2              Navigate between code issues
+Shift+F2        Jump to the next or previous highlighted error.
+
+Ctrl+W          Extend or shrink selection
+Ctrl+Shift+W    Increase or decrease the scope of selection according to specific code constructs.
+
+
+/home/art/Projects/jd-cli/jd --skipResources --outputDirStructured /home/art/Projects/OUD_Decompiled /home/art/Projects/OUD_Oracle_Home/oracle_common/modules/oracle.jdbc/ojdbc8dms_g.jar

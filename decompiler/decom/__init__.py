@@ -1,5 +1,7 @@
 import argparse
 import pathlib
+import shutil
+import subprocess
 import sys
 from enum import Enum
 from os import linesep
@@ -7,20 +9,64 @@ from os import linesep
 from . import exceptions
 
 
+class Options(Enum):
+    INPUT_DIR = '--input-dir'
+    OUTPUT_DIR = '--output-dir'
+    JD_CLI = '--jd-cli'
+    CLEAN_OUTPUT_DIR = '--clean-output-dir'
+
+
 def main():
     try:
         args = _parse_args()
+        if getattr(args, Options.CLEAN_OUTPUT_DIR.name):
+            _clean(getattr(args, Options.OUTPUT_DIR.name))
+
+        input_dir = getattr(args, Options.INPUT_DIR.name)
+        for path in input_dir.rglob('*.jar'):
+            if path.is_symlink() or path.is_dir():
+                pass
+            else:
+                _decompile_jar(path, args)
     except exceptions.CommandLineOptions as error:
         sys.stderr.write(str(error) + linesep)
         sys.stderr.write(error.parser.format_help())
         sys.exit(1)
 
 
-class Options(Enum):
-    INPUT_DIR = '--input-dir'
-    OUTPUT_DIR = '--output-dir'
-    JD_CLI = '--jd-cli'
-    CLEAN_OUTPUT_DIR = '--clean-output-dir'
+def _clean(dir):
+    if dir.is_dir():
+        for path in dir.iterdir():
+            if path.is_dir():
+                shutil.rmtree(path, ignore_errors=True)
+            else:
+                path.unlink()
+    else:
+        dir.unlink()
+
+
+def _decompile_jar(path: pathlib.Path, args):
+    output_dir = getattr(args, Options.OUTPUT_DIR.name)
+    cmd = [
+        str(getattr(args, Options.JD_CLI.name)),
+        '--skipResources',
+        '--outputDirStructured', str(output_dir),
+        str(path)
+    ]
+
+    proc = subprocess.run(cmd)
+    # proc.check_returncode()
+
+    decompiled_dir = output_dir.joinpath(path.name)
+    if decompiled_dir.exists():
+        for decom_file in decompiled_dir.iterdir():
+            target = output_dir.joinpath(decom_file.name)
+            if decom_file.is_dir():
+                shutil.copytree(decom_file, target, dirs_exist_ok=True)
+            else:
+                shutil.copy(decom_file, target)
+        _clean(decompiled_dir)
+        decompiled_dir.rmdir()
 
 
 def _parse_args():
