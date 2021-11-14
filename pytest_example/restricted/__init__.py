@@ -26,6 +26,15 @@ class Restricted:
         if attr_name not in cls._list_of_keys():
             raise AttributeError(f"Attribute {attr_name} is not allowed in {cls}")
 
+    def __contains__(self, item):
+        try:
+            if self.__getattr__(item) is not None:
+                return True
+            else:
+                False
+        except:
+            return False
+
     def __getattr__(self, item):
         self._is_attr_allowed(item)
         return self.__dict__[item] if item in self.__dict__ else None
@@ -50,7 +59,7 @@ class Restricted:
 
     def __str__(self):
         string = type(self).__name__ + linesep
-        for item in self._list_of_keys():
+        for item in sorted(self._list_of_keys()):
             if item in self.__dict__ and self.__dict__[item] is not None:
-                string += f"    {item}: {str(self.__dict__[item])}" + linesep
+                string += f"    {item}: {str(self.__dict__[item])}{linesep}"
         return string.strip()
